@@ -5,7 +5,7 @@ use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_hal::clock::CpuClock;
 use esp_hal::timer::timg::TimerGroup;
-
+use log::{info, warn};
 #[panic_handler]
 fn panic(_: &core::panic::PanicInfo) -> ! {
     loop {}
@@ -15,11 +15,10 @@ extern crate alloc;
 
 #[esp_hal_embassy::main]
 async fn main(spawner: Spawner) {
+    esp_println::logger::init_logger(log::LevelFilter::Info);
     // generator version: 0.3.1
-
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let peripherals = esp_hal::init(config);
-
     esp_alloc::heap_allocator!(size: 72 * 1024);
 
     let timer0 = TimerGroup::new(peripherals.TIMG1);
@@ -32,11 +31,13 @@ async fn main(spawner: Spawner) {
         peripherals.RADIO_CLK,
     )
     .unwrap();
-
     // TODO: Spawn some tasks
+    info!("Starting");
+
     let _ = spawner;
 
     loop {
+        warn!("Hello World!");
         Timer::after(Duration::from_secs(1)).await;
     }
 
